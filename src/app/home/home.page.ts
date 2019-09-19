@@ -1,7 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { AlertController, ToastController, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import * as moment from 'moment';
+
+import { Observable } from 'rxjs';
 
 import { AngularFirestore, AngularFirestoreCollection } from '@angular/fire/firestore';
 import { AngularFireAuth } from '@angular/fire/auth';
@@ -20,9 +22,17 @@ export class HomePage implements OnInit {
     message: string; // 入力されるメッセージ用
     post: Post; // Postと同じデータ構造のプロパティーを指定できる
     posts: Post[]; // Post型の配列という指定もできる
+    displayName: string; // ユーザー名を表示する
+    uranai: string; // 占い結果
+
+
 
     // Firestoreのコレクションを扱うプロパティー
     postsCollection: AngularFirestoreCollection<Post>;
+
+    // 時刻表示用Ï
+    now: Observable<Date>;
+    intervalList = [];
 
     constructor(
         private alertCtrl: AlertController,
@@ -37,7 +47,26 @@ export class HomePage implements OnInit {
         this.afStore.firestore.enableNetwork();
         // コンポーネントの初期化時に、投稿を読み込むgetPosts()を実行
         this.getPosts();
+        // ユーザー名を取得する
+        this.displayName = this.afAuth.auth.currentUser.displayName;
+        // 時刻表示用
+        this.now = new Observable((observer) => {
+            this.intervalList.push(setInterval(() => {
+              observer.next(new Date());
+            }, 1000));
+          });
+          // 占い
+        this.uranai = this.getUranai();
     }
+    // tslint:disable-next-line:use-life-cycle-interface
+    ngOnDestroy() {
+        if (this.intervalList) {
+          this.intervalList.forEach((interval) => {
+            clearInterval(interval);
+          });
+        }
+    }
+
 
     addPost() {
         // 入力されたメッセージを使って、投稿データを作成
@@ -198,4 +227,59 @@ export class HomePage implements OnInit {
         });
         return await modal.present();
     }
+
+        // 占い
+        getUranai() {
+            const ransu = Math.round(Math.random() * 5);
+            switch (ransu) {
+                case 0:
+                    return 'アマガエルと一緒にまったりできるような一日になるでしょう。';
+                    break;
+                case 1:
+                    return 'トノサマガエルのようにどっしりとしているといいでしょう。';
+                    break;
+                case 2:
+                    return 'ヤドクガエル並みに危険なことがあるかもしれません。';
+                    break;
+                case 3:
+                    return 'ツノガエルのように変化のない一日が待っているでしょう。';
+                    break;
+                case 4:
+                    return 'ヒキガエルみたいに嫌われるかもしれません。';
+                    break;
+                case 5:
+                    return 'カメガエルレベルの変な出来事があるかもしれません。';
+                    break;
+                default:
+                    return '';
+                    break;
+            }
+        }
+
+        // 占い結果を表示
+        async outputUranai() {
+            const toast = await this.toastCtrl.create({
+                message: this.uranai,
+                buttons: [
+                    {
+                        text: 'OK',
+                        role: 'cancel'
+                    }
+                ]
+            });
+            await toast.present();
+        }
+
+        async outputUser() {
+            const toast = await this.toastCtrl.create({
+                message: this.displayName,
+                buttons: [
+                    {
+                        text: 'OK',
+                        role: 'cancel'
+                    }
+                ]
+            });
+            await toast.present();
+        }
 }

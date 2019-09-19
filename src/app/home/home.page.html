@@ -4,10 +4,17 @@
       <ion-title> Ionic 掲示板 </ion-title>
   
       <ion-buttons slot="end">
+        <h6>{{ now | async | date:'yyyy年MM月dd日 HH:mm:ss' }}</h6>
+        <ion-button end fill="clear" (click)="outputUser()">
+            <ion-icon name="contact"></ion-icon>
+          </ion-button>
         <ion-button end fill="clear" (click)="logout()">
           <ion-icon name="log-out"></ion-icon>
         </ion-button>
       </ion-buttons>
+      <ion-button (click) = "outputUranai()">
+        今日の運勢
+      </ion-button>
     </ion-toolbar>
   </ion-header>
   
