@@ -245,7 +245,7 @@ export class HomePage implements OnInit {
                     return 'ツノガエルのように変化のない一日が待っているでしょう。';
                     break;
                 case 4:
-                    return 'ヒキガエルみたいに嫌われるかもしれません。';
+                    return 'カジカガエルの鳴き声みたいに美しい一日になるでしょう。';
                     break;
                 case 5:
                     return 'カメガエルレベルの変な出来事があるかもしれません。';
